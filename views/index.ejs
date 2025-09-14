@@ -3,9 +3,9 @@
         <a href="/new">Create a new message</a>
         <% messages.map(message => { %>
             <div>
-                <p><strong><%= message.user %>:</strong> <%= message.text %></p>
-                <p><small>Added on <%= message.added.toDateString() %></small></p>
-                <a href="/<%= message.user %>">Open</a>
+                <p><strong><%= message.username %>:</strong> <%= message.text %></p>
+                <p><small>Added on <%= message.added %></small></p>
+                <a href="/<%= message.username %>">Open</a>
             </div>
         <% }); %>
     </body>

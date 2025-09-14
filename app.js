@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require("node:path");
+const db = require("./db/queries");
 
 // This sets the path for templates to the views folder
 app.set("views", path.join(__dirname, "views"));
@@ -13,7 +14,7 @@ app.use(express.static(assetsPath));
 //// This allows Express to parse incoming form data into req.body
 app.use(express.urlencoded({ extended: true }));
 
-
+/*
 const messages = [
     {
       text: "Hi there!",
@@ -26,9 +27,13 @@ const messages = [
       added: new Date()
     }
   ];
+*/
+
+
 
 // This will render the index.ejs file in the views folder
-app.get("/", (req, res) => {
+app.get("/", async (req, res) => {
+  const messages = await db.getAllMessages();
   res.render("index", { messages: messages });
 });
 
@@ -39,7 +44,8 @@ app.get("/new", (req, res) => {
 app.post("/new", (req, res) => {
   const messageText = req.body.text;
   const messageUser = req.body.user;
-  messages.push({ text: messageText, user: messageUser, added: new Date() });
+  // the Date object is in the correct format for PostgreSQL
+  db.insertMessage(messageUser, messageText, new Date());
   res.redirect("/"); // Sends the user back to the main page
 });
 
@@ -47,8 +53,9 @@ app.post("/new", (req, res) => {
 // When the Open button is clicked in the index view (which will have access to all the messages), it will send the user to the URL with the message sender's name
 // That will trigger this route, which renders the Open template
 // It knows which message to display by reading the message sender's name in the URL parameter and matching it to one of the messages
-app.get("/:openMessage", (req, res) => {
-  res.render("open", { message: messages.find(msg => msg.user === req.params.openMessage) });
+app.get("/:openMessage", async (req, res) => {
+  const message = await db.getOneMessage(req.params.openMessage);
+  res.render("open", { message: message[0] });
 });
 
 
